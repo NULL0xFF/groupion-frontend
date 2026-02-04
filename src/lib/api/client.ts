@@ -71,12 +71,20 @@ async function request<T>(
     }
 
     // 4. Parse Response
-    // Some endpoints (like 204 No Content) might not have a body
+    // Handle 204 No Content specifically
     if (response.status === 204) {
         return {} as T;
     }
 
-    return response.json();
+    // Safe parsing: Read text first to handle 200 OK with empty body
+    const text = await response.text();
+    try {
+        return text ? JSON.parse(text) : ({} as T);
+    } catch (e) {
+        // If the server returns text that isn't JSON (and isn't empty), treat as valid T
+        // or throw depending on strictness. Here we assume non-empty non-JSON is an error for API.
+        throw new ApiError(response.status, 'Invalid JSON response from server');
+    }
 }
 
 // Export HTTP verbs
