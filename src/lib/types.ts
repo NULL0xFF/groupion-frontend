@@ -4,6 +4,9 @@ export interface User {
     displayName: string;
     inGameNickname: string;
     colorHex: string;
+    characterNickname?: string;
+    characterItemLevel?: string;
+    isVerified?: boolean;
 }
 
 export interface AuthResponse {
